@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PortfolioSensei — Japan Tech Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root,[data-theme="light"]{
+  --bg:#f7f6f2;--surface:#ffffff;--surface2:#f3f0ec;--border:#dcd9d5;
+  --text:#1a1917;--muted:#6b6a66;--faint:#b0afa9;--inverse:#f9f8f4;
+  --primary:#01696f;--primary-hover:#0c4e54;--primary-hl:#cedcd8;
+  --green:#2a7d2e;--green-bg:#e8f5e9;--red:#c0392b;--red-bg:#fdecea;
+  --gold:#b8860b;--gold-bg:#fef9e7;
+  --shadow:0 2px 8px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12);
+  --radius:8px;--radius-lg:12px;
+  --font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;
+}
+[data-theme="dark"]{
+  --bg:#0f0e0d;--surface:#1a1918;--surface2:#222120;--border:#2e2d2b;
+  --text:#d4d3d0;--muted:#787673;--faint:#4a4947;--inverse:#1a1918;
+  --primary:#4f98a3;--primary-hover:#3d8590;--primary-hl:#1e3535;
+  --green:#4caf50;--green-bg:rgba(76,175,80,.12);--red:#ef5350;--red-bg:rgba(239,83,80,.12);
+  --gold:#ffc107;--gold-bg:rgba(255,193,7,.10);
+  --shadow:0 2px 8px rgba(0,0,0,.4);--shadow-lg:0 8px 32px rgba(0,0,0,.5);
+}
+
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{font-family:var(--font-body);font-size:14px;color:var(--text);background:var(--bg);min-height:100vh;line-height:1.5}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+input{font:inherit;color:inherit}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* LAYOUT */
+.app{display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;white-space:nowrap}
+.logo svg{color:var(--primary)}
+.logo span.sub{font-weight:400;color:var(--muted);font-size:12px;border-left:1px solid var(--border);padding-left:10px;margin-left:2px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.main{max-width:1400px;margin:0 auto;width:100%;padding:24px 20px}
+
+/* STATUS BAR */
+.statusbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.status-item{display:flex;align-items:center;gap:6px}
+.status-divider{width:1px;height:16px;background:var(--border)}
+
+/* CONTROLS */
+.controls{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:240px;max-width:400px}
+.search-wrap input{width:100%;padding:9px 12px 9px 36px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none;transition:border-color .15s}
+.search-wrap input:focus{border-color:var(--primary)}
+.search-wrap .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--faint);pointer-events:none}
+.add-stock-wrap{display:flex;gap:8px;flex:1;min-width:280px}
+.add-stock-wrap input{flex:1;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;outline:none;transition:border-color .15s}
+.add-stock-wrap input:focus{border-color:var(--primary)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-ghost{border:1px solid var(--border);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-icon{padding:8px;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted)}
+.btn-icon:hover{border-color:var(--primary);color:var(--primary)}
+
+/* FILTER TABS */
+.filter-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:100px;font-size:12px;font-weight:500;border:1px solid var(--border);color:var(--muted);transition:all .15s;cursor:pointer}
+.tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.tab:hover:not(.active){border-color:var(--primary);color:var(--primary)}
+.tab .cnt{background:var(--surface2);border-radius:100px;padding:1px 6px;font-size:10px;margin-left:4px}
+.tab.active .cnt{background:rgba(255,255,255,.2)}
+
+/* STATS CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.stat-value{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;font-family:var(--font-mono)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.pos{color:var(--green)}.neg{color:var(--red)}.neu{color:var(--gold)}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.table-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.table-header-left{display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px}
+.table-meta{font-size:11px;color:var(--muted);font-weight:400}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:10px 12px;text-align:right;font-weight:600;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;transition:color .15s}
+thead th:hover{color:var(--primary)}
+thead th:first-child,thead th:nth-child(2),thead th:nth-child(3){text-align:left}
+thead th.sorted{color:var(--primary)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+td{padding:10px 12px;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+td:first-child,td:nth-child(2),td:nth-child(3){text-align:left}
+.code-cell{font-family:var(--font-mono);font-weight:600;font-size:11px;color:var(--primary)}
+.name-cell{font-weight:500;max-width:160px;overflow:hidden;text-overflow:ellipsis}
+.cat-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600;white-space:nowrap}
+.cat-semi{background:rgba(33,150,243,.15);color:#2196f3}
+.cat-ai{background:rgba(76,175,80,.15);color:#4caf50}
+.cat-phys{background:rgba(255,152,0,.15);color:#ff9800}
+.cat-dc{background:rgba(156,39,176,.15);color:#9c27b0}
+.cat-qc{background:rgba(233,30,99,.15);color:#e91e63}
+.cat-us{background:rgba(0,150,136,.15);color:#009688}
+.price-cell{font-family:var(--font-mono);font-weight:600;font-size:12px}
+.chg-cell{font-family:var(--font-mono);font-size:11px;font-weight:600}
+.chg-cell.pos{color:var(--green)}.chg-cell.neg{color:var(--red)}.chg-cell.neu{color:var(--muted)}
+.signal{font-size:14px;text-align:center}
+.loading-cell{text-align:center;color:var(--faint);font-size:11px;padding:6px 12px}
+.spinner-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--primary);animation:blink .8s ease-in-out infinite}
+.spinner-dot:nth-child(2){animation-delay:.2s}.spinner-dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.del-btn{opacity:0;padding:3px;border-radius:4px;color:var(--muted);transition:all .15s}
+tr:hover .del-btn{opacity:1}
+.del-btn:hover{background:var(--red-bg);color:var(--red)}
+.add-cat-select{padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);outline:none;cursor:pointer}
+.add-cat-select:focus{border-color:var(--primary)}
+.portfolio-tag{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gold);margin-right:4px;flex-shrink:0}
+.last-update{font-size:11px;color:var(--muted);margin-left:auto;display:flex;align-items:center;gap:6px}
+.refresh-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--radius);border:1px solid var(--border);font-size:12px;color:var(--muted);transition:all .15s;cursor:pointer;background:none}
+.refresh-btn:hover{border-color:var(--primary);color:var(--primary)}
+.refresh-btn.spinning svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-row td{text-align:center;padding:40px;color:var(--faint);font-size:13px}
+.sort-arrow{font-size:9px;margin-left:2px;opacity:.5}
+.sorted .sort-arrow{opacity:1}
+.notice{background:var(--gold-bg);border:1px solid rgba(255,193,7,.3);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+@media(max-width:768px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .controls{flex-direction:column}
+  .add-stock-wrap{min-width:100%}
+  .topbar{padding:0 14px}
+  .main{padding:16px 12px}
+  td:nth-child(7),td:nth-child(8),td:nth-child(9),td:nth-child(10),td:nth-child(11),th:nth-child(7),th:nth-child(8),th:nth-child(9),th:nth-child(10),th:nth-child(11){display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m7 16 4-4 4 4 4-6"/></svg>
+    PortfolioSensei
+    <span class="sub">Japan Tech Tracker</span>
+  </div>
+  <div class="topbar-right">
+    <button class="refresh-btn" id="refreshBtn" onclick="refreshAll()">
+      <svg id="refreshIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+      <span id="refreshLabel">Refresh</span>
+    </button>
+    <button class="btn-icon" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="themeIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- NOTICE -->
+  <div class="notice" id="apiNotice">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Prices via Cloudflare Worker (Yahoo Finance 5y history). Cached in browser localStorage — loads instantly on next visit. Data refreshes in background every page load.
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <div class="status-item"><span class="status-dot" id="statusDot"></span><span id="statusText">Ready</span></div>
+    <div class="status-divider"></div>
+    <div class="status-item"><i data-lucide="clock" style="width:12px;height:12px"></i> <span id="lastUpdateTime">—</span></div>
+    <div class="status-divider"></div>
+    <div class="status-item"><i data-lucide="database" style="width:12px;height:12px"></i> <span id="stockCount">0</span> stocks</div>
+    <div class="status-divider"></div>
+    <div class="status-item" id="nikkeiStatus"><i data-lucide="trending-up" style="width:12px;height:12px"></i> Nikkei: <strong id="nikkeiVal">—</strong></div>
+    <div class="status-divider"></div>
+    <div class="status-item"><i data-lucide="dollar-sign" style="width:12px;height:12px"></i> USD/JPY: <strong id="usdjpyVal">—</strong></div>
+  </div>
+
+  <!-- STATS CARDS -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="stat-label">Gainers Today</div><div class="stat-value pos" id="statGainers">—</div><div class="stat-sub">up on the day</div></div>
+    <div class="stat-card"><div class="stat-label">Losers Today</div><div class="stat-value neg" id="statLosers">—</div><div class="stat-sub">down on the day</div></div>
+    <div class="stat-card"><div class="stat-label">Best Today</div><div class="stat-value pos" id="statBest">—</div><div class="stat-sub" id="statBestName">—</div></div>
+    <div class="stat-card"><div class="stat-label">Worst Today</div><div class="stat-value neg" id="statWorst">—</div><div class="stat-sub" id="statWorstName">—</div></div>
+    <div class="stat-card"><div class="stat-label">🔥 Strong Movers</div><div class="stat-value neu" id="statHot">—</div><div class="stat-sub">&gt;5% today</div></div>
+    <div class="stat-card"><div class="stat-label">Total Watched</div><div class="stat-value" id="statTotal">—</div><div class="stat-sub">in watchlist</div></div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="search-wrap">
+      <i data-lucide="search" class="si" style="width:14px;height:14px"></i>
+      <input type="text" id="searchInput" placeholder="Search stocks..." oninput="filterTable()">
+    </div>
+    <div class="add-stock-wrap">
+      <input type="text" id="addCode" placeholder="Code e.g. 6146 or NVDA" style="max-width:180px">
+      <select class="add-cat-select" id="addCat">
+        <option value="semi">🔵 Semiconductor</option>
+        <option value="ai">🟢 AI Components</option>
+        <option value="phys">🟠 Physical AI</option>
+        <option value="dc">🟣 Data Center</option>
+        <option value="qc">🔮 Quantum</option>
+        <option value="us">🌐 Global AI</option>
+      </select>
+      <button class="btn btn-primary" onclick="addStockFromInput()">
+        <i data-lucide="plus" style="width:14px;height:14px"></i> Add
+      </button>
+    </div>
+    <button class="btn btn-ghost" onclick="exportCSV()">
+      <i data-lucide="download" style="width:14px;height:14px"></i> CSV
+    </button>
+  </div>
+
+  <!-- FILTER TABS -->
+  <div class="filter-tabs" id="filterTabs">
+    <button class="tab active" onclick="filterCat('all')" data-cat="all">All <span class="cnt" id="cntAll">0</span></button>
+    <button class="tab" onclick="filterCat('semi')" data-cat="semi">🔵 Semiconductor <span class="cnt" id="cntSemi">0</span></button>
+    <button class="tab" onclick="filterCat('ai')" data-cat="ai">🟢 AI Components <span class="cnt" id="cntAi">0</span></button>
+    <button class="tab" onclick="filterCat('phys')" data-cat="phys">🟠 Physical AI <span class="cnt" id="cntPhys">0</span></button>
+    <button class="tab" onclick="filterCat('dc')" data-cat="dc">🟣 Data Center <span class="cnt" id="cntDc">0</span></button>
+    <button class="tab" onclick="filterCat('qc')" data-cat="qc">🔮 Quantum <span class="cnt" id="cntQc">0</span></button>
+    <button class="tab" onclick="filterCat('us')" data-cat="us">🌐 Global AI <span class="cnt" id="cntUs">0</span></button>
+    <button class="tab" onclick="filterCat('portfolio')" data-cat="portfolio">⭐ My Holdings</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-header-left">
+        <i data-lucide="bar-chart-2" style="width:16px;height:16px;color:var(--primary)"></i>
+        Stock Performance
+        <span class="table-meta" id="tableMetaCount">0 stocks</span>
+      </div>
+      <div class="last-update" id="lastUpdateLabel">Click Refresh to load prices</div>
+    </div>
+    <div style="overflow-x:auto">
+    <table id="stockTable">
+      <thead>
+        <tr>
+          <th onclick="sortTable('code')">Code <span class="sort-arrow">▼</span></th>
+          <th onclick="sortTable('name')">Name <span class="sort-arrow">▼</span></th>
+          <th onclick="sortTable('cat')">Category <span class="sort-arrow">▼</span></th>
+          <th onclick="sortTable('price')">Price <span class="sort-arrow">▼</span></th>
+          <th onclick="sortTable('day')">Day % <span class="sort-arrow">▼</span></th>
+          <th onclick="sortTable('week')">Week % <span class="sort-arrow">▼</span></th>
+          <th onclick="sortTable('month')">Month % <span class="sort-arrow">▼</span></th>
+          <th onclick="sortTable('month3')">3M % <span class="sort-arrow">▼</span></th>
+          <th onclick="sortTable('ytd')">6M % <span class="sort-arrow">▼</span></th>
+          <th onclick="sortTable('year')">1Y % <span class="sort-arrow">▼</span></th>
+          <th onclick="sortTable('year3')">3Y % <span class="sort-arrow">▼</span></th>
+          <th onclick="sortTable('year5')">5Y % <span class="sort-arrow">▼</span></th>
+          <th>Signal</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr class="empty-row"><td colspan="13">Click <strong>Refresh</strong> to load live prices ↗</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <p style="font-size:11px;color:var(--faint);margin-top:16px;text-align:center">
+    ⚠️ For educational purposes only. Not financial advice. Prices from Yahoo Finance (delayed). 
+    <a href="https://finance.yahoo.co.jp" target="_blank" rel="noopener">Yahoo Finance Japan</a> · 
+    <a href="https://minkabu.jp" target="_blank" rel="noopener">Minkabu</a>
+  </p>
+
+</main>
+</div>
+
+<script>
+// ─── STOCK DATABASE ──────────────────────────────────────────────
+const PORTFOLIO_CODES = ['GOOGL','MSFT','AMZN','META','5713','5803','8035','6254','6857','GLD'];
+
+let stocks = [
+  // 🔵 Semiconductors
+  {code:'8035',name:'Tokyo Electron',cat:'semi',exchange:'T',inPortfolio:true},
+  {code:'6857',name:'Advantest',cat:'semi',exchange:'T',inPortfolio:true},
+  {code:'6254',name:'KOKUSAI ELECTRIC',cat:'semi',exchange:'T',inPortfolio:true},
+  {code:'7741',name:'Hoya Corp',cat:'semi',exchange:'T'},
+  {code:'5713',name:'JX Metals',cat:'semi',exchange:'T',inPortfolio:true},
+  {code:'6723',name:'Renesas Electronics',cat:'semi',exchange:'T'},
+  {code:'6146',name:'DISCO Corp',cat:'semi',exchange:'T'},
+  {code:'6920',name:'Lasertec',cat:'semi',exchange:'T'},
+  {code:'6963',name:'Rohm',cat:'semi',exchange:'T'},
+  {code:'7735',name:'Screen Holdings',cat:'semi',exchange:'T'},
+  {code:'4062',name:'Ibiden',cat:'semi',exchange:'T'},
+  {code:'285A',name:'Kioxia Holdings',cat:'semi',exchange:'T'},
+  // 🟢 AI Components
+  {code:'6981',name:'Murata Mfg',cat:'ai',exchange:'T'},
+  {code:'6976',name:'Taiyo Yuden',cat:'ai',exchange:'T'},
+  {code:'5803',name:'Fujikura',cat:'ai',exchange:'T',inPortfolio:true},
+  {code:'6861',name:'Keyence',cat:'ai',exchange:'T'},
+  {code:'6965',name:'Hamamatsu Photonics',cat:'ai',exchange:'T'},
+  {code:'6834',name:'Seikoh Giken',cat:'ai',exchange:'T'},
+  {code:'6777',name:'Santec Holdings',cat:'ai',exchange:'T'},
+  // 🟠 Physical AI
+  {code:'6954',name:'Fanuc',cat:'phys',exchange:'T'},
+  {code:'6506',name:'Yaskawa Electric',cat:'phys',exchange:'T'},
+  {code:'7012',name:'Kawasaki Heavy Ind',cat:'phys',exchange:'T'},
+  {code:'6268',name:'Nabtesco',cat:'phys',exchange:'T'},
+  {code:'6324',name:'Harmonic Drive',cat:'phys',exchange:'T'},
+  {code:'6273',name:'SMC Corp',cat:'phys',exchange:'T'},
+  // 🟣 Data Centers
+  {code:'3778',name:'Sakura Internet',cat:'dc',exchange:'T'},
+  {code:'3774',name:'IIJ',cat:'dc',exchange:'T'},
+  {code:'9432',name:'NTT',cat:'dc',exchange:'T'},
+  {code:'9433',name:'KDDI',cat:'dc',exchange:'T'},
+  {code:'6702',name:'Fujitsu',cat:'dc',exchange:'T'},
+  // 🔮 Quantum
+  {code:'3687',name:'Fixstars',cat:'qc',exchange:'T'},
+  {code:'6864',name:'NF Holdings',cat:'qc',exchange:'T'},
+  {code:'6501',name:'Hitachi',cat:'qc',exchange:'T'},
+  {code:'6701',name:'NEC',cat:'qc',exchange:'T'},
+  // 🌐 Global AI
+  {code:'GOOGL',name:'Alphabet',cat:'us',exchange:'US',inPortfolio:true},
+  {code:'MSFT',name:'Microsoft',cat:'us',exchange:'US',inPortfolio:true},
+  {code:'AMZN',name:'Amazon',cat:'us',exchange:'US',inPortfolio:true},
+  {code:'META',name:'Meta Platforms',cat:'us',exchange:'US',inPortfolio:true},
+];
+
+let priceData = {};
+let currentCat = 'all';
+let sortKey = 'cat';
+let sortAsc = true;
+let dataLoaded = false;
+
+// ─── YAHOO FINANCE FETCH (via allorigins proxy) ─────────────────
+function yahooSymbol(stock) {
+  if (stock.exchange === 'US') return stock.code;
+  return stock.code + '.T';
+}
+
+// ─── CLOUDFLARE WORKER v3 (5-year history, localStorage cache) ──
+const WORKER_BASE = 'https://small-credit-c136.rabiprakas.workers.dev';
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+// Worker returns new payload:
+// { code, currentPrice, dayChangePercent, history: {
+//     price3DaysAgo, price1WeekAgo, price1MonthAgo, price3MonthAgo,
+//     price6MonthAgo, price1YearAgo, price3YearAgo, price5YearAgo } }
+
+function pct(current, past) {
+  if (!past || past === 0) return null;
+  return ((current - past) / past * 100);
+}
+
+function parseWorkerPayload(raw) {
+  if (!raw || raw.error) return null;
+  const p  = raw.currentPrice;
+  const h  = raw.history || {};
+  return {
+    price:    p,
+    dayChg:   raw.dayChangePercent ?? pct(p, h.price3DaysAgo),
+    weekChg:  pct(p, h.price1WeekAgo),
+    monthChg: pct(p, h.price1MonthAgo),
+    threeMonthChg: pct(p, h.price3MonthAgo),
+    sixMChg:  pct(p, h.price6MonthAgo),
+    yearChg:  pct(p, h.price1YearAgo),
+    threeYearChg: pct(p, h.price3YearAgo),
+    fiveYearChg:  pct(p, h.price5YearAgo),
+    currency: raw.currency || 'JPY',
+    sym: raw.code,
+    _ts: Date.now()
+  };
+}
+
+function getCached(code) {
+  try {
+    const item = localStorage.getItem('ps_' + code);
+    if (!item) return null;
+    const obj = JSON.parse(item);
+    return obj; // always return cache regardless of age (background refresh handles freshness)
+  } catch(e) { return null; }
+}
+
+function saveCache(code, raw) {
+  try { localStorage.setItem('ps_' + code, JSON.stringify(raw)); } catch(e) {}
+}
+
+// yahooSymbol is defined below — worker auto-appends .T for 4-digit codes
+// so we just pass the raw code; worker handles the suffix.
+function workerCode(stock) {
+  // For US stocks pass ticker as-is. For JP pass numeric code (worker adds .T).
+  return stock.exchange === 'US' ? stock.code : stock.code.replace('.T','');
+}
+
+async function fetchPrice(stock) {
+  const wCode = workerCode(stock);
+  const cacheKey = stock.code;
+
+  // 1. Render cached data instantly if available
+  const cached = getCached(cacheKey);
+  if (cached) {
+    const parsed = parseWorkerPayload(cached);
+    if (parsed) priceData[cacheKey] = parsed;
+    renderTable();
+  }
+
+  // 2. Background fetch fresh data
+  try {
+    const res = await fetch(`${WORKER_BASE}/?code=${encodeURIComponent(wCode)}`, {
+      signal: AbortSignal.timeout(20000)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const raw = await res.json();
+    if (!raw || raw.error) throw new Error(raw?.error || 'empty');
+    saveCache(cacheKey, raw);
+    const parsed = parseWorkerPayload(raw);
+    if (parsed) priceData[cacheKey] = parsed;
+    return parsed;
+  } catch(e) {
+    console.warn(`[${wCode}]`, e.message);
+    return priceData[cacheKey] || null; // return cached if fresh fails
+  }
+}
+
+async function fetchMarketIndices() {
+  // Nikkei 225
+  try {
+    const res = await fetch(`${WORKER_BASE}/?code=N225`, { signal: AbortSignal.timeout(12000) });
+    const raw = await res.json();
+    const nv = raw.currentPrice;
+    const pc = raw.dayChangePercent;
+    if (nv) {
+      document.getElementById('nikkeiVal').textContent =
+        `${nv.toLocaleString('ja-JP',{maximumFractionDigits:0})} (${pc>=0?'+':''}${parseFloat(pc).toFixed(2)}%)`;
+      document.getElementById('nikkeiVal').className = pc >= 0 ? 'pos' : 'neg';
+    }
+  } catch(e) {}
+  // USD/JPY
+  try {
+    const res = await fetch(`${WORKER_BASE}/?code=USDJPY%3DX`, { signal: AbortSignal.timeout(12000) });
+    const raw = await res.json();
+    const fv = raw.currentPrice;
+    if (fv) document.getElementById('usdjpyVal').textContent = parseFloat(fv).toFixed(2);
+  } catch(e) {}
+}
+
+// ─── REFRESH ALL ─────────────────────────────────────────────────
+async function refreshAll() {
+  const btn = document.getElementById('refreshBtn');
+  const label = document.getElementById('refreshLabel');
+  const icon = document.getElementById('refreshIcon');
+  btn.classList.add('spinning');
+  label.textContent = 'Loading...';
+  document.getElementById('statusText').textContent = 'Fetching prices...';
+  document.getElementById('statusDot').style.background = 'var(--gold)';
+  fetchMarketIndices();
+  let done = 0;
+  const total = stocks.length;
+  for (const s of stocks) {
+    label.textContent = `${Math.round((done/total)*100)}%`;
+    const d = await fetchPrice(s);
+    if (d) priceData[s.code] = d;
+    done++;
+    renderTable();
+  }
+  btn.classList.remove('spinning');
+  label.textContent = 'Refresh';
+  dataLoaded = true;
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+  document.getElementById('lastUpdateTime').textContent = `Updated ${timeStr} JST`;
+  document.getElementById('lastUpdateLabel').textContent = `Last updated: ${timeStr} JST`;
+  document.getElementById('statusText').textContent = 'Live';
+  document.getElementById('statusDot').style.background = 'var(--green)';
+  renderStats();
+}
+
+// ─── SIGNAL LOGIC ───────────────────────────────────────────────
+function getSignal(d) {
+  if (!d) return '—';
+  const signals = [];
+  if (d.dayChg !== null && d.dayChg > 5) signals.push('🔥');
+  if (d.dayChg !== null && d.dayChg < -5) signals.push('⚠️');
+  if (d.yearChg !== null && d.yearChg > 30 && d.dayChg > 0) signals.push('📈');
+  if (d.dayChg !== null && d.monthChg !== null && d.dayChg >= -2 && d.dayChg <= 2 && Math.abs(d.monthChg) < 3) signals.push('💤');
+  if (signals.length === 0 && d.dayChg !== null && d.monthChg !== null && d.yearChg !== null && d.dayChg > 0 && d.monthChg > 0 && d.yearChg > 0) signals.push('✅');
+  return signals.join('') || '—';
+}
+
+// ─── FORMAT HELPERS ─────────────────────────────────────────────
+function fmtPrice(d, exchange) {
+  if (!d) return '<span style="color:var(--faint)">—</span>';
+  const sym = exchange === 'US' ? '$' : '¥';
+  const fmt = exchange === 'US' ? d.price.toFixed(2) : d.price.toLocaleString('ja-JP',{maximumFractionDigits:0});
+  return `<span class="price-cell">${sym}${fmt}</span>`;
+}
+
+function fmtChg(v) {
+  if (v === null || v === undefined) return '<span style="color:var(--faint)">—</span>';
+  const cls = v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu';
+  const prefix = v > 0 ? '+' : '';
+  return `<span class="chg-cell ${cls}">${prefix}${v.toFixed(2)}%</span>`;
+}
+
+function catLabel(cat) {
+  const map = {semi:'🔵 Semi',ai:'🟢 AI Comp',phys:'🟠 Phys AI',dc:'🟣 DataCtr',qc:'🔮 Quantum',us:'🌐 Global'};
+  const cls = {semi:'cat-semi',ai:'cat-ai',phys:'cat-phys',dc:'cat-dc',qc:'cat-qc',us:'cat-us'};
+  return `<span class="cat-badge ${cls[cat]||''}">${map[cat]||cat}</span>`;
+}
+
+// ─── RENDER TABLE ────────────────────────────────────────────────
+function getFilteredStocks() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  return stocks.filter(s => {
+    const catOk = currentCat === 'all' || (currentCat === 'portfolio' ? s.inPortfolio : s.cat === currentCat);
+    const searchOk = !q || s.code.toLowerCase().includes(q) || s.name.toLowerCase().includes(q);
+    return catOk && searchOk;
+  });
+}
+
+function renderTable() {
+  const filtered = getSortedStocks(getFilteredStocks());
+  const tbody = document.getElementById('tableBody');
+  document.getElementById('tableMetaCount').textContent = filtered.length + ' stocks';
+  document.getElementById('stockCount').textContent = stocks.length;
+  updateCounts();
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="13">No stocks found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(s => {
+    const d = priceData[s.code];
+    const loading = !dataLoaded;
+    const ld = (txt) => loading ? '<span class="loading-cell"><span class="spinner-dot"></span><span class="spinner-dot"></span><span class="spinner-dot"></span></span>' : txt;
+    return `<tr>
+      <td><a class="code-cell" href="https://finance.yahoo.co.jp/quote/${s.code}${s.exchange==='T'?'.T':''}" target="_blank" rel="noopener">${s.code}</a>${s.inPortfolio?'<span class="portfolio-tag" title="In your portfolio"></span>':''}</td>
+      <td class="name-cell" title="${s.name}">${s.name}</td>
+      <td>${catLabel(s.cat)}</td>
+      <td>${loading?ld(''):fmtPrice(d,s.exchange)}</td>
+      <td>${loading?ld(''):fmtChg(d?.dayChg)}</td>
+      <td>${loading?ld(''):fmtChg(d?.weekChg)}</td>
+      <td>${loading?ld(''):fmtChg(d?.monthChg)}</td>
+      <td>${loading?ld(''):fmtChg(d?.threeMonthChg)}</td>
+      <td>${loading?ld(''):fmtChg(d?.sixMChg)}</td>
+      <td>${loading?ld(''):fmtChg(d?.yearChg)}</td>
+      <td>${loading?ld(''):fmtChg(d?.threeYearChg)}</td>
+      <td>${loading?ld(''):fmtChg(d?.fiveYearChg)}</td>
+      <td class="signal">${loading?'':getSignal(d)}</td>
+      <td><button class="del-btn" onclick="removeStock('${s.code}')" title="Remove"><i data-lucide="x" style="width:12px;height:12px"></i></button></td>
+    </tr>`;
+  }).join('');
+  lucide.createIcons();
+}
+
+// ─── SORT ────────────────────────────────────────────────────────
+function getSortedStocks(arr) {
+  return [...arr].sort((a, b) => {
+    let va, vb;
+    const da = priceData[a.code], db = priceData[b.code];
+    switch(sortKey) {
+      case 'code': va = a.code; vb = b.code; break;
+      case 'name': va = a.name; vb = b.name; break;
+      case 'cat':  va = a.cat;  vb = b.cat;  break;
+      case 'price': va = da?.price||0; vb = db?.price||0; break;
+      case 'day': va = da?.dayChg??-999; vb = db?.dayChg??-999; break;
+      case 'week': va = da?.weekChg??-999; vb = db?.weekChg??-999; break;
+      case 'month': va = da?.monthChg??-999; vb = db?.monthChg??-999; break;
+      case 'month3': va = da?.threeMonthChg??-999; vb = db?.threeMonthChg??-999; break;
+      case 'ytd': va = da?.sixMChg??-999; vb = db?.sixMChg??-999; break;
+      case 'year3': va = da?.threeYearChg??-999; vb = db?.threeYearChg??-999; break;
+      case 'year5': va = da?.fiveYearChg??-999; vb = db?.fiveYearChg??-999; break;
+      case 'year': va = da?.yearChg??-999; vb = db?.yearChg??-999; break;
+      default: va = a.code; vb = b.code;
+    }
+    if (typeof va === 'string') return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return sortAsc ? vb - va : va - vb;
+  });
+}
+
+function sortTable(key) {
+  if (sortKey === key) sortAsc = !sortAsc;
+  else { sortKey = key; sortAsc = false; }
+  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+  renderTable();
+}
+
+// ─── FILTER ──────────────────────────────────────────────────────
+function filterCat(cat) {
+  currentCat = cat;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.cat === cat));
+  renderTable();
+}
+
+function filterTable() { renderTable(); }
+
+function updateCounts() {
+  const cats = {semi:0,ai:0,phys:0,dc:0,qc:0,us:0};
+  stocks.forEach(s => { if (cats[s.cat] !== undefined) cats[s.cat]++; });
+  document.getElementById('cntAll').textContent = stocks.length;
+  document.getElementById('cntSemi').textContent = cats.semi;
+  document.getElementById('cntAi').textContent = cats.ai;
+  document.getElementById('cntPhys').textContent = cats.phys;
+  document.getElementById('cntDc').textContent = cats.dc;
+  document.getElementById('cntQc').textContent = cats.qc;
+  document.getElementById('cntUs').textContent = cats.us;
+}
+
+// ─── STATS CARDS ─────────────────────────────────────────────────
+function renderStats() {
+  const loaded = stocks.filter(s => priceData[s.code]?.dayChg !== null && priceData[s.code]?.dayChg !== undefined);
+  const gainers = loaded.filter(s => priceData[s.code].dayChg > 0);
+  const losers = loaded.filter(s => priceData[s.code].dayChg < 0);
+  const hot = loaded.filter(s => Math.abs(priceData[s.code].dayChg) > 5);
+  const best = loaded.sort((a,b) => priceData[b.code].dayChg - priceData[a.code].dayChg)[0];
+  const worst = loaded.sort((a,b) => priceData[a.code].dayChg - priceData[b.code].dayChg)[0];
+  document.getElementById('statGainers').textContent = gainers.length;
+  document.getElementById('statLosers').textContent = losers.length;
+  document.getElementById('statHot').textContent = hot.length;
+  document.getElementById('statTotal').textContent = stocks.length;
+  if (best) { document.getElementById('statBest').textContent = '+'+priceData[best.code].dayChg.toFixed(2)+'%'; document.getElementById('statBestName').textContent = best.name; }
+  if (worst) { document.getElementById('statWorst').textContent = priceData[worst.code].dayChg.toFixed(2)+'%'; document.getElementById('statWorstName').textContent = worst.name; }
+}
+
+// ─── ADD / REMOVE STOCK ──────────────────────────────────────────
+function addStockFromInput() {
+  const code = document.getElementById('addCode').value.trim().toUpperCase();
+  const cat = document.getElementById('addCat').value;
+  if (!code) { alert('Please enter a stock code'); return; }
+  if (stocks.find(s => s.code === code)) { alert(`${code} is already in the list`); return; }
+  const exchange = /^[A-Z]{1,5}$/.test(code) && !code.match(/^\d/) ? 'US' : 'T';
+  stocks.push({ code, name: code, cat, exchange });
+  document.getElementById('addCode').value = '';
+  renderTable();
+  updateCounts();
+  // Auto-fetch price for new stock
+  const newStock = stocks[stocks.length - 1];
+  fetchPrice(newStock).then(d => {
+    if (d) { priceData[code] = d; renderTable(); renderStats(); }
+  });
+}
+
+function removeStock(code) {
+  stocks = stocks.filter(s => s.code !== code);
+  delete priceData[code];
+  renderTable();
+  updateCounts();
+  renderStats();
+}
+
+// ─── EXPORT CSV ──────────────────────────────────────────────────
+function exportCSV() {
+  const rows = [['Code','Name','Category','Price','Day%','Week%','Month%','3M%','6M%','1Y%','3Y%','5Y%','Signal']];
+  stocks.forEach(s => {
+    const d = priceData[s.code];
+    rows.push([s.code, s.name, s.cat, d?.price||'', d?.dayChg?.toFixed(2)||'', d?.weekChg?.toFixed(2)||'', d?.monthChg?.toFixed(2)||'', d?.threeMonthChg?.toFixed(2)||'', d?.sixMChg?.toFixed(2)||'', d?.yearChg?.toFixed(2)||'', d?.threeYearChg?.toFixed(2)||'', d?.fiveYearChg?.toFixed(2)||'', getSignal(d)]);
+  });
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `portfolio-sensei-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ─── THEME TOGGLE ────────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  const icon = document.getElementById('themeIcon');
+  icon.innerHTML = next === 'dark'
+    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+    : '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+lucide.createIcons();
+renderTable();
+updateCounts();
+
+// Auto-refresh on load
+window.addEventListener('load', () => {
+  setTimeout(() => refreshAll(), 500);
+});
+</script>
+</body>
+</html>
